@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 const uri = `mongodb+srv://simpleCrudUser:KSZmFLI9b6afJjR4@cluster0.uwxm1bp.mongodb.net/?appName=Cluster0`;
@@ -25,6 +25,15 @@ const run = async () => {
             const cursor = userCollection.find();
             const result = await cursor.toArray();
             res.send(result);
+        })
+
+        app.get('/users/:id', async(req, res) => {
+            const { id } = req.params;
+            const query = {
+                _id: new ObjectId(id)
+            }
+            const user = await userCollection.findOne(query);
+            res.send(user);
         })
 
         await client.db('admin').command({ ping: 1 });
