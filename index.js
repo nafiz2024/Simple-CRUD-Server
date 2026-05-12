@@ -4,6 +4,9 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
+app.use(cors());
+app.use(express.json());
+
 const uri = `mongodb+srv://simpleCrudUser:KSZmFLI9b6afJjR4@cluster0.uwxm1bp.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
@@ -41,6 +44,26 @@ const run = async () => {
             const result = await userCollection.insertOne(newUser);
             res.send(result);
         })
+
+        app.patch('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = {
+                _id: new ObjectId(id)
+            };
+            const modifiedUser = req.body;
+
+            const updatedDocument = {
+                $set: {
+                    name: modifiedUser.name,
+                    email: modifiedUser.email,
+                    role: modifiedUser.role
+                }
+            }
+
+            const result = await userCollection.updateOne(filter, updatedDocument);
+
+            res.send(result);
+        })
  
         app.delete('/users/:id', async (req, res) => {
             const id = req.params.id;
@@ -59,9 +82,6 @@ const run = async () => {
     }
 }
 run().catch(console.dir);
-
-app.use(cors());
-app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Simple CRUD server is serving you!");
